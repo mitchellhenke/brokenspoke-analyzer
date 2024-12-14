@@ -22,14 +22,16 @@ FROM neighborhood_ways AS r1,
                     source_vert AS source,
                     target_vert AS target,
                     link_cost AS cost
-            FROM    neighborhood_ways_net_link
-            WHERE   link_stress = 1',
+            -- Reasonable to exclude calculating costs for ways outside of shed?
+            -- Use :nb_max_trip_distance plus an additional radius?
+            FROM    neighborhood_ways_net_link l WHERE ST_DWithin(l.geom, (select ST_Union(geom) from neighborhood_ways where road_id =' || :road_id || '), 3000) AND
+            link_stress = 1',
         v1.vert_id,
         :nb_max_trip_distance,
         directed := true -- noqa: RF02
     ) AS sheds
 WHERE
-    r1.road_id % :thread_num = :thread_no
+    r1.road_id = :road_id
     AND
     EXISTS (
         SELECT 1
