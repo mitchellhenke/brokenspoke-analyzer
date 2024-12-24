@@ -88,7 +88,12 @@ def features(
     for script in sql_scripts:
         sql_script = sql_feature_script_dir / script
         dbcore.execute_sql_file(engine, sql_script)
-    sql_script = sql_feature_script_dir / "paths.sql"
+
+    sql_scripts = ["paths.sql", "paths_road_ids.sql"]
+    for script in sql_scripts:
+        bind_params = {"nb_output_srid": output_srid}
+        sql_script = sql_feature_script_dir / script
+        execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
 
     logger.info("Remove routable unpaved ways")
     dbcore.execute_query(
@@ -115,8 +120,7 @@ def features(
         """,
     )
 
-    bind_params = {"nb_output_srid": output_srid}
-    execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
+
     sql_scripts = [
         "speed_limit.sql",
         "lanes.sql",
