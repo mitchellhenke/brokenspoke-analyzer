@@ -70,6 +70,18 @@ def features(
         "DELETE FROM neighborhood_osm_full_line WHERE bicycle='no';",
     )
 
+    # Remove motorways that imply bicycles are prohibited and do not
+    # specify otherwise
+    logger.info("Removing anything that prohibits bicycles")
+    dbcore.execute_query(
+        engine,
+        """
+        DELETE FROM neighborhood_osm_full_line
+        WHERE highway IN ('motorway', 'motorway_link')
+        AND (bicycle IS NULL OR bicycle = 'no');
+        """,
+    )
+
     # Setting values on road segments.
     logger.info("Setting values on road segments")
     sql_scripts = ["one_way.sql", "width_ft.sql", "functional_class.sql"]
