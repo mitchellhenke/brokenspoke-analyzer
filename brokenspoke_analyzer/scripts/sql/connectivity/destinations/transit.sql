@@ -62,9 +62,11 @@ SELECT
     )
 FROM neighborhood_osm_full_point
 WHERE (
-    amenity = 'bus_station'
-    OR railway = 'station'
-    OR public_transport = 'station'
+    public_transport = 'station'
+    AND (
+        amenity = 'bus_station'
+        OR (railway = 'station' AND station != 'miniature')
+    )
 )
 AND NOT EXISTS (
     SELECT 1
