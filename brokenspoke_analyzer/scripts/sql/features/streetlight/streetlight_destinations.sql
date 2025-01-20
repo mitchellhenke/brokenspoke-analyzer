@@ -20,8 +20,8 @@ INSERT INTO neighborhood_streetlight_destinations (
 )
 -- noqa: disable=AL08
 SELECT
-    blocks.blockid10,
-    blocks.blockid10,
+    blocks.geoid20,
+    blocks.geoid20,
     -- Transform to 4326, this is what StreetLightData expects
     ST_Transform(blocks.geom, 4326), -- noqa: AL03
     0 -- noqa: AL03
