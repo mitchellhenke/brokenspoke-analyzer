@@ -81,6 +81,7 @@ ALTER TABLE neighborhood_ways ADD COLUMN ft_int_stress INT;
 ALTER TABLE neighborhood_ways ADD COLUMN tf_seg_stress INT;
 ALTER TABLE neighborhood_ways ADD COLUMN tf_int_stress INT;
 ALTER TABLE neighborhood_ways ADD COLUMN xwalk INT;
+ALTER TABLE neighborhood_ways ADD COLUMN is_unbikeable BOOLEAN;
 
 -- indexes
 CREATE INDEX idx_neighborhood_ways_osm ON neighborhood_ways (osm_id);

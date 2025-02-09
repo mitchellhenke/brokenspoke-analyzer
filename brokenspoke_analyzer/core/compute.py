@@ -67,7 +67,7 @@ def features(
 
     # Setting values on road segments.
     logger.info("Setting values on road segments")
-    sql_scripts = ["one_way.sql", "width_ft.sql", "functional_class.sql"]
+    sql_scripts = ["one_way.sql", "width_ft.sql", "functional_class.sql", "unbikeable.sql"]
     for script in sql_scripts:
         sql_script = sql_feature_script_dir / script
         dbcore.execute_sql_file(engine, sql_script)

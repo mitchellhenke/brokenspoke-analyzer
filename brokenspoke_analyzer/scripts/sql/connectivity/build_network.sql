@@ -43,7 +43,8 @@ INSERT INTO received.neighborhood_ways_net_vert (road_id, geom)
 SELECT
     ways.road_id,
     ST_LineInterpolatePoint(ways.geom, 0.5) -- noqa: AL03
-FROM received.neighborhood_ways AS ways;
+FROM received.neighborhood_ways AS ways
+WHERE NOT ways.is_unbikeable;
 
 -- index
 CREATE INDEX sidx_neighborhood_ways_net_vert_geom
@@ -75,6 +76,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id IN (roads1.intersection_from, roads1.intersection_to)
     AND ints.int_id IN (roads2.intersection_from, roads2.intersection_to)
@@ -98,6 +101,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id IN (roads1.intersection_from, roads1.intersection_to)
     AND ints.int_id = roads2.intersection_from
@@ -121,6 +126,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id IN (roads1.intersection_from, roads1.intersection_to)
     AND ints.int_id = roads2.intersection_to
@@ -144,6 +151,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_to
     AND ints.int_id IN (roads2.intersection_from, roads2.intersection_to)
@@ -167,6 +176,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_to
     AND ints.int_id = roads2.intersection_from
@@ -190,6 +201,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_to
     AND ints.int_id = roads2.intersection_to
@@ -213,6 +226,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_from
     AND ints.int_id IN (roads2.intersection_from, roads2.intersection_to)
@@ -236,6 +251,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_from
     AND ints.int_id = roads2.intersection_to
@@ -259,6 +276,8 @@ FROM received.neighborhood_ways_intersections AS ints,
     received.neighborhood_ways AS roads2
 WHERE
     vert1.road_id = roads1.road_id
+    AND NOT roads1.is_unbikeable
+    AND NOT roads2.is_unbikeable
     AND vert2.road_id = roads2.road_id
     AND ints.int_id = roads1.intersection_from
     AND ints.int_id = roads2.intersection_from

@@ -30,6 +30,7 @@ FROM neighborhood_ways AS r1,
     ) AS sheds
 WHERE
     r1.road_id % :thread_num = :thread_no
+    AND NOT r1.is_unbikeable
     AND
     EXISTS (
         SELECT 1
