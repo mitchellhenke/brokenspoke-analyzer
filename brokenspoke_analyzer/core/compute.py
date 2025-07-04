@@ -218,6 +218,7 @@ class Tolerance:
     doctors: int = 50
     dentists: int = 50
     hospitals: int = 50
+    libraries: int = 50
     pharmacies: int = 50
     parks: int = 50
     retail: int = 50
@@ -388,6 +389,7 @@ def connectivity(
         (tolerance.doctors, "doctors"),
         (tolerance.dentists, "dentists"),
         (tolerance.hospitals, "hospitals"),
+        (tolerance.libraries, "libraries"),
         (tolerance.pharmacies, "pharmacies"),
         (tolerance.parks, "parks"),
         (tolerance.retail, "retail"),
@@ -416,6 +418,7 @@ def connectivity(
         Access("doctors", first=0.4, second=0.2, third=0.1),
         Access("dentists", first=0.4, second=0.2, third=0.1),
         Access("hospitals", first=0.7),
+        Access("libraries", first=0.7),
         Access("pharmacies", first=0.4, second=0.2, third=0.1),
         Access("parks", first=0.3, second=0.2, third=0.2),
         Access("retail", first=0.4, second=0.2, third=0.1),

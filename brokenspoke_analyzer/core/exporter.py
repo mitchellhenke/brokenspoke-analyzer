@@ -35,6 +35,7 @@ TABLE_CATALOG = {
         "neighborhood_supermarkets",
         "neighborhood_transit",
         "neighborhood_universities",
+        "neighborhood_libraries",
         "neighborhood_ways",
         "neighborhood_ways_intersections",
     ],
