@@ -45,6 +45,7 @@ def prepare_cmd(
     mirror: common.Mirror = None,
     no_cache: common.NoCache = False,
     retries: common.Retries = common.DEFAULT_RETRIES,
+    buffer: common.Buffer = common.DEFAULT_BUFFER,
 ) -> None:
     """Prepare all the files required for an analysis."""
     # Make MyPy happy.
@@ -60,6 +61,8 @@ def prepare_cmd(
         raise ValueError("`retries` must be set")
     if not lodes_year:
         raise ValueError("`lodes_year` must be set")
+    if not buffer:
+        raise ValueError("`buffer` must be set")
 
     # Ensure lodes_year match the census decade.
     if 2020 > lodes_year > 2029:
@@ -81,6 +84,7 @@ def prepare_cmd(
         prepare_(
             block_population=block_population,
             block_size=block_size,
+            buffer=buffer,
             city_speed_limit=city_speed_limit,
             city=city,
             country=country,
@@ -98,6 +102,7 @@ async def prepare_(
     *,
     block_population: int,
     block_size: int,
+    buffer: int,
     city_speed_limit: int,
     city: str,
     country: str,
@@ -131,7 +136,9 @@ async def prepare_(
     console.log(
         f"[green]Querying OSM to retrieve {city} boundaries...",
     )
-    slug = retryer(analysis.retrieve_city_boundaries, data_dir, country, city, region)
+    slug = retryer(
+        analysis.retrieve_city_boundaries, data_dir, buffer, country, city, region
+    )
     boundary_file = data_dir / f"{slug}.shp"
 
     # Download the OSM region file.
@@ -152,7 +159,7 @@ async def prepare_(
 
     # Reduce the osm file with osmium.
     console.log(f"[green]Reducing the OSM file for {city} with osmium...")
-    polygon_file = data_dir / f"{slug}.geojson"
+    polygon_file = data_dir / f"buffered_{slug}.geojson"
     pfb_osm_file = pathlib.Path(f"{slug}.osm")
     analysis.prepare_city_file(data_dir, region_file_path, polygon_file, pfb_osm_file)
 
