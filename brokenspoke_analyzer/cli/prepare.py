@@ -46,6 +46,7 @@ def prepare_cmd(
     retries: common.Retries = common.DEFAULT_RETRIES,
     *,
     no_cache: common.NoCache = False,
+    buffer: common.Buffer = common.DEFAULT_BUFFER,
 ) -> None:
     """Prepare all the files required for an analysis."""
     # Make MyPy happy.
@@ -59,6 +60,8 @@ def prepare_cmd(
         raise ValueError("`block_population` must be set")
     if not retries:
         raise ValueError("`retries` must be set")
+    if not buffer:
+        raise ValueError("`buffer` must be set")
 
     # Handles us/usa as the same country.
     country = utils.normalize_country_name(country)
@@ -77,6 +80,7 @@ def prepare_cmd(
             block_population=block_population,
             block_size=block_size,
             cache_dir=cache_dir,
+            buffer=buffer,
             city_speed_limit=city_speed_limit,
             city=city,
             country=country,
@@ -96,6 +100,7 @@ async def prepare_(  # noqa: PLR0915
     block_population: int,
     block_size: int,
     cache_dir: pathlib.Path | None,
+    buffer: int,
     city_speed_limit: int,
     city: str,
     country: str,
@@ -131,12 +136,7 @@ async def prepare_(  # noqa: PLR0915
         f"[green]Querying OSM to retrieve {city} boundaries...",
     )
     slug = retryer(
-        analysis.retrieve_city_boundaries,
-        data_dir,
-        country,
-        city,
-        region,
-        fips_code,
+        analysis.retrieve_city_boundaries, data_dir, country, city, buffer, region, fips_code
     )
     boundary_file = data_dir / f"{slug}.shp"
 
@@ -168,7 +168,7 @@ async def prepare_(  # noqa: PLR0915
 
     # Reduce the osm file with osmium.
     console.log(f"[green]Reducing the OSM file for {city} with osmium...")
-    polygon_file = data_dir / f"{slug}.geojson"
+    polygon_file = data_dir / f"buffered_{slug}.geojson"
     region_file_path = data_dir / region_file_name
     pfb_osm_file = pathlib.Path(f"{slug}.osm")
     analysis.prepare_city_file(data_dir, region_file_path, polygon_file, pfb_osm_file)

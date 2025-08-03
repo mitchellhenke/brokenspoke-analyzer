@@ -165,6 +165,7 @@ async def run_(  # noqa: C901, PLR0912, PLR0915
     await prepare.prepare_(
         block_population=block_population,
         block_size=block_size,
+        buffer=buffer,
         cache_dir=cache_dir,
         city_speed_limit=city_speed_limit,
         city=city,

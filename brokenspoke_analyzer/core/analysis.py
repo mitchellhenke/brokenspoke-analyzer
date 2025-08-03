@@ -151,6 +151,7 @@ def retrieve_city_boundaries(
     output: pathlib.Path,
     country: str,
     city: str,
+    buffer: int,
     state: str | None = None,
     fips_code: str | None = None,
 ) -> str:
@@ -201,10 +202,17 @@ def retrieve_city_boundaries(
         # non US characters.
         # https://github.com/PeopleForBikes/brokenspoke-analyzer/issues/24
         city_gdf.drop("display_name", axis=1)
+    buffered_city_gdf = city_gdf.copy()
+    # Project to 32613 for meter units and back to 4326
+    buffered_city_gdf["geometry"] = (
+        buffered_city_gdf.to_crs(32613).buffer(buffer).to_crs(4326)
+    )
 
     # Export the boundaries.
     city_gdf.to_file(output / f"{slug}.shp", encoding="utf-8")
     city_gdf.to_file(output / f"{slug}.geojson")
+    buffered_city_gdf.to_file(output / f"buffered_{slug}.geojson")
+    buffered_city_gdf.to_file(output / f"buffered_{slug}.shp", encoding="utf-8")
 
     return slug
 

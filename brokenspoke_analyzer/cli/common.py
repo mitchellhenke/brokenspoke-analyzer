@@ -10,7 +10,7 @@ from brokenspoke_analyzer.core import constant
 # Default constants.
 DEFAULT_BLOCK_POPULATION = 100
 DEFAULT_BLOCK_SIZE = 500
-DEFAULT_BUFFER = 2680
+DEFAULT_BUFFER = 200
 DEFAULT_CITY_FIPS_CODE = "0"  # "0" means an non-US city.
 DEFAULT_CITY_SPEED_LIMIT = 30
 DEFAULT_COMPUTE_PARTS = constant.COMPUTE_PARTS_ALL
