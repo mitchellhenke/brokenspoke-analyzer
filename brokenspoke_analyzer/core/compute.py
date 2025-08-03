@@ -500,7 +500,7 @@ def all(
     state_default_speed: int | None,
     city_default_speed: int | None,
     import_jobs: bool,
-    buffer: common.Buffer = common.DEFAULT_BUFFER,
+    buffer: common.Buffer = common.DEFAULT_WAY_BUFFER,
     max_trip_distance: common.MaxTripDistance = common.DEFAULT_MAX_TRIP_DISTANCE,
 ) -> None:
     """Compute all features."""
@@ -524,7 +524,7 @@ def parts(
     state_default_speed: int | None,
     city_default_speed: int | None,
     import_jobs: bool,
-    buffer: common.Buffer = common.DEFAULT_BUFFER,
+    buffer: common.Buffer = common.DEFAULT_WAY_BUFFER,
     max_trip_distance: common.MaxTripDistance = common.DEFAULT_MAX_TRIP_DISTANCE,
     compute_parts: common.ComputeParts = common.DEFAULT_COMPUTE_PARTS,
 ) -> None:

@@ -43,6 +43,7 @@ def all(
     lodes_year: common.LODESYear = common.DEFAULT_LODES_YEAR,
     output_dir: common.OutputDir = common.DEFAULT_OUTPUT_DIR,
     retries: common.Retries = common.DEFAULT_RETRIES,
+    buffer: common.Buffer = common.DEFAULT_BUFFER,
 ) -> None:
     """Prepare all the files required for an analysis."""
     # Make MyPy happy.
@@ -58,6 +59,8 @@ def all(
         raise ValueError("`retries` must be set")
     if not lodes_year:
         raise ValueError("`lodes_year` must be set")
+    if not buffer:
+        raise ValueError("`buffer` must be set")
 
     # Handles us/usa as the same country.
     country = utils.normalize_country_name(country)
@@ -82,6 +85,7 @@ def all(
             block_population=block_population,
             retries=retries,
             lodes_year=lodes_year,
+            buffer=buffer,
         )
     )
 
@@ -95,6 +99,7 @@ async def prepare_(
     block_population: int,
     retries: int,
     lodes_year: int,
+    buffer: int,
     region: typing.Optional[str] = None,
 ) -> None:
     """Prepare and kicks off the analysis."""
@@ -120,7 +125,9 @@ async def prepare_(
     console.log(
         f"[green]Querying OSM to retrieve {city} boundaries...",
     )
-    slug = retryer(analysis.retrieve_city_boundaries, output_dir, country, city, region)
+    slug = retryer(
+        analysis.retrieve_city_boundaries, output_dir, buffer, country, city, region
+    )
     boundary_file = output_dir / f"{slug}.shp"
 
     # Download the OSM region file.
@@ -145,7 +152,7 @@ async def prepare_(
 
     # Reduce the osm file with osmium.
     console.log(f"[green]Reducing the OSM file for {city} with osmium...")
-    polygon_file = output_dir / f"{slug}.geojson"
+    polygon_file = output_dir / f"buffered_{slug}.geojson"
     pfb_osm_file = pathlib.Path(f"{slug}.osm")
     analysis.prepare_city_file(output_dir, region_file_path, polygon_file, pfb_osm_file)
 
