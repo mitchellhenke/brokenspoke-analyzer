@@ -540,6 +540,20 @@ SELECT
 INSERT INTO generated.neighborhood_overall_scores (
     score_id, score_original, human_explanation
 )
+WITH boundary_pieces AS (
+  SELECT ST_Subdivide(geom, 300) AS geom
+  FROM neighborhood_boundary
+),
+clipped AS (
+  SELECT
+    ST_Intersection(w.geom, b.geom) AS geom_clip,
+    w.ft_seg_stress,
+    w.tf_seg_stress
+  FROM neighborhood_ways w
+  JOIN boundary_pieces b
+    ON w.geom && b.geom
+   AND ST_Intersects(w.geom, b.geom)
+)
 SELECT
     'total_miles_low_stress', -- noqa: AL03
     (
@@ -567,6 +581,20 @@ SELECT
 
 INSERT INTO generated.neighborhood_overall_scores (
     score_id, score_original, human_explanation
+)
+WITH boundary_pieces AS (
+  SELECT ST_Subdivide(geom, 300) AS geom
+  FROM neighborhood_boundary
+),
+clipped AS (
+  SELECT
+    ST_Intersection(w.geom, b.geom) AS geom_clip,
+    w.ft_seg_stress,
+    w.tf_seg_stress
+  FROM neighborhood_ways w
+  JOIN boundary_pieces b
+    ON w.geom && b.geom
+   AND ST_Intersects(w.geom, b.geom)
 )
 SELECT
     'total_miles_high_stress', -- noqa: AL03

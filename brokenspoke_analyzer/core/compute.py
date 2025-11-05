@@ -91,6 +91,10 @@ def features(
     sql_script = sql_feature_script_dir / "paths.sql"
     bind_params = {"nb_output_srid": output_srid}
     execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
+
+    sql_script = sql_feature_script_dir / "paths_road_ids.sql"
+    execute_sqlfile_with_substitutions(engine, sql_script, {})
+
     sql_scripts = [
         "speed_limit.sql",
         "lanes.sql",
@@ -313,6 +317,9 @@ def connectivity(  # noqa: PLR0915
     sql_script = sql_connectivity_script_dir / "build_network.sql"
     bind_params = {"nb_output_srid": output_srid}
     execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
+    execute_sqlfile_with_substitutions(engine, sql_connectivity_script_dir / "build_network_links.sql", {})
+    execute_sqlfile_with_substitutions(engine, sql_connectivity_script_dir / "build_network_turn_info.sql", {})
+    execute_sqlfile_with_substitutions(engine, sql_connectivity_script_dir / "build_network_cleanup.sql", {})
 
     sql_script = sql_connectivity_script_dir / "census_blocks.sql"
     bind_params = {
