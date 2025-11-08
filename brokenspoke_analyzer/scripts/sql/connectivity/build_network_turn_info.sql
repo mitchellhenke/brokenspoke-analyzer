@@ -108,4 +108,3 @@ WHERE link_id = (
         END ASC
     LIMIT 1
 );
-

@@ -77,4 +77,3 @@ WHERE
 -- set index
 CREATE INDEX idx_neighborhood_ways_path_id ON neighborhood_ways (path_id);
 ANALYZE neighborhood_ways (path_id);
-

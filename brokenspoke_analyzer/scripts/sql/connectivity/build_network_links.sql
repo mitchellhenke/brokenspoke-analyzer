@@ -236,4 +236,3 @@ ON received.neighborhood_ways_net_link (
     target_road_id
 );
 ANALYZE received.neighborhood_ways_net_link;
-
