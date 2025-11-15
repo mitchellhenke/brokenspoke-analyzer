@@ -17,6 +17,7 @@ compose.yml
 data
 dist
 docs
+results
 examples
 htmlcov
 integration
