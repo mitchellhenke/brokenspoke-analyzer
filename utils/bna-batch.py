@@ -82,9 +82,6 @@ BatchFile = Annotated[
 ]
 DATA_DIR = pathlib.Path("./data").resolve()
 MAX_RETRIES = 2
-OSM_CACHE_DIR = pathlib.Path("./osm_cache").resolve()
-OSM_CACHE_FILE_SUFFIX = ".pbf.md5"
-
 
 def main(
     batch_file: BatchFile = "cities.csv",
@@ -100,10 +97,6 @@ def main(
 
     # Enable cache.
     # os.environ["BNA_CACHING_STRATEGY"] = "USER_CACHE"
-
-    # Simulate a caching mechanism for OSM data.
-    osm_cache = OSM_CACHE_DIR
-    osm_cache.mkdir(parents=True, exist_ok=True)
 
     # Prepare the Rich output.
     console = rich.get_console()
