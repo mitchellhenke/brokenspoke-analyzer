@@ -711,16 +711,17 @@ SELECT
         SELECT
             (1 / 1609.34) * (
                 SUM(
-                    ST_Length(ST_Intersection(w.geom, b.geom))
-                    * CASE w.ft_seg_stress WHEN 1 THEN 1 ELSE 0 END
-                )
-                + SUM(
-                    ST_Length(ST_Intersection(w.geom, b.geom))
-                    * CASE w.tf_seg_stress WHEN 1 THEN 1 ELSE 0 END
+                  ST_Length(ST_Intersection(w.geom, b.geom))
+                  * CASE (COALESCE(w.ft_seg_stress, 0) + COALESCE(w.tf_seg_stress, 0))
+                  WHEN 2 THEN 2
+                  WHEN 4 THEN 1
+                  WHEN 1 THEN 1
+                  ELSE 0
+                  END
                 )
             ) AS dist
         FROM neighborhood_ways AS w, neighborhood_boundary AS b
-        WHERE ST_Intersects(w.geom, b.geom)
+        WHERE ST_Intersects(w.geom, b.geom) AND (w.ft_seg_stress = 1 OR w.tf_seg_stress = 1)
     ) AS distance,
     'Total low-stress miles'; -- noqa: AL03
 
@@ -730,19 +731,20 @@ INSERT INTO generated.neighborhood_overall_scores (
 SELECT
     'total_miles_high_stress', -- noqa: AL03
     (
-        SELECT
-            (1 / 1609.34) * (
-                SUM(
-                    ST_Length(ST_Intersection(w.geom, b.geom))
-                    * CASE w.ft_seg_stress WHEN 3 THEN 1 ELSE 0 END
-                )
-                + SUM(
-                    ST_Length(ST_Intersection(w.geom, b.geom))
-                    * CASE w.tf_seg_stress WHEN 3 THEN 1 ELSE 0 END
-                )
-            ) AS dist
-        FROM neighborhood_ways AS w, neighborhood_boundary AS b
-        WHERE ST_Intersects(w.geom, b.geom)
+      SELECT
+        (1 / 1609.34) * (
+          SUM(
+              ST_Length(ST_Intersection(w.geom, b.geom))
+              * CASE (COALESCE(w.ft_seg_stress, 0) + COALESCE(w.tf_seg_stress, 0))
+              WHEN 6 THEN 2
+              WHEN 4 THEN 1
+              WHEN 3 THEN 1
+              ELSE 0
+              END
+          )
+       ) AS dist
+      FROM neighborhood_ways AS w, neighborhood_boundary AS b
+      WHERE ST_Intersects(w.geom, b.geom) AND (w.ft_seg_stress = 3 OR w.tf_seg_stress = 3)
     ) AS distance,
     'Total high-stress miles'; -- noqa: AL03
 
