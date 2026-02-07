@@ -22,7 +22,7 @@ bna-batch.py [OPTIONS] [BATCH_FILE]
 - `--lodes-year` _lodes-year_
     - Year to use to retrieve US job data.
 
-      Defaults to 2022.
+      Defaults to 2023.
 
 - `--with-parts` _parts_
   - Parts of the analysis to compute.
