@@ -127,10 +127,10 @@ def main(
             fips_code = row["fips_code"]
 
             run_with_docker(
-                country: country,
-                city: city,
-                region: region,
-                fips_code: fips_code,
+                country=country,
+                city=city,
+                region=region,
+                fips_code=fips_code,
             )
 
 
@@ -182,6 +182,12 @@ def run_with_docker(
         )
         subprocess.run(
             docker_run_cmd
+            + [
+                "-u",
+                f"{uid}:{gid}",
+                "-v",
+                "./cache:/usr/src/app/cache",
+              ]
             + docker_image
             + [
                 "run",
@@ -189,6 +195,8 @@ def run_with_docker(
                 city,
                 region,
                 fips_code,
+                "--cache-dir",
+                "/usr/src/app/cache",
             ]
         )
         subprocess.run(
