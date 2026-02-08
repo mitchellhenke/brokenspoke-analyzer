@@ -95,6 +95,7 @@ def run_osmium_extract(
         str(region_file_path.resolve(strict=True)),
         "-o",
         str(reduced_file_path.resolve()),
+        "-v",
     ]
     run(osmium_cmd)
 
