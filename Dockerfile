@@ -81,8 +81,8 @@ WORKDIR /usr/src/app
 COPY --from=osm2pgrouting3 /usr/src/osm2pgrouting/build/osm2pgrouting /usr/bin/osm2pgrouting
 
 # bring in preinstalled dependencies
-COPY --from=deps-installed /usr/local/lib/python3.13/site-packages \
-  /usr/local/lib/python3.13/site-packages
+COPY --from=deps-installed /usr/local/lib/python3.14/site-packages \
+  /usr/local/lib/python3.14/site-packages
 
 # bring in app wheel
 COPY --from=builder /usr/src/app/dist ./pkg/dist
