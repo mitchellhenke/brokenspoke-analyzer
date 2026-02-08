@@ -90,12 +90,13 @@ def run_osmium_extract(
     osmium_cmd = [
         "osmium",
         "extract",
+        "-v",
+        "-s simple",
         "-p",
         str(polygon_file_path.resolve(strict=True)),
         str(region_file_path.resolve(strict=True)),
         "-o",
         str(reduced_file_path.resolve()),
-        "-v",
     ]
     run(osmium_cmd)
 
