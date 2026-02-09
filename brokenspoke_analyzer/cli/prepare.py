@@ -61,11 +61,6 @@ def prepare_cmd(
         raise ValueError("`block_population` must be set")
     if not retries:
         raise ValueError("`retries` must be set")
-    if not lodes_year:
-        raise ValueError("`lodes_year` must be set")
-    # Ensure lodes_year match the census decade.
-    if 2020 > lodes_year > 2029:
-        raise ValueError("`lodes_year` value must be set between 2020 and 2029")
     if not buffer:
         raise ValueError("`buffer` must be set")
 
