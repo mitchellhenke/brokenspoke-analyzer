@@ -3,16 +3,45 @@ from pathlib import Path
 
 RESULTS_DIR = Path("results")
 OUTPUT_CSV = "merged_city_scores.csv"
+HISTORICAL_CSV = "historical_scores.csv"
 
+STATE_ABBREV = {
+    "wisconsin": "WI",
+    # add more states later if needed
+}
+
+def norm(s: str) -> str:
+    return s.strip().lower()
+
+# -----------------------------
+# Load historical 2025 scores
+# -----------------------------
+historical = {}
+
+with open(HISTORICAL_CSV, newline="") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        if row["country"] != "US":
+            continue
+
+        city = norm(row["city"])
+        state = row["state"]
+        score_2025 = row.get("2025", "").strip()
+
+        if not score_2025:
+            continue
+
+        historical[(city, state)] = score_2025
+
+# -----------------------------
+# Walk results + merge
+# -----------------------------
 rows = []
 
 for csv_path in RESULTS_DIR.glob("*/*/*/*/neighborhood_overall_scores.csv"):
-    # Example path:
-    # results/united states/wisconsin/sauk city/26.02/neighborhood_overall_scores.csv
     parts = csv_path.parts
 
-    country = parts[-5]
-    state = parts[-4]
+    state_name = parts[-4]
     city = parts[-3]
 
     metrics = {}
@@ -33,21 +62,32 @@ for csv_path in RESULTS_DIR.glob("*/*/*/*/neighborhood_overall_scores.csv"):
             }:
                 metrics[key] = value
 
-    # Skip incomplete rows
     if len(metrics) != 3:
-        print(f"⚠️  Missing data in {csv_path}")
+        print(f"⚠️  Missing metrics in {csv_path}")
         continue
+
+    state_abbrev = STATE_ABBREV.get(norm(state_name))
+    old_score = ""
+
+    if state_abbrev:
+        old_score = historical.get(
+            (norm(city), state_abbrev),
+            ""
+        )
 
     rows.append(
         {
-            "city_state": f"{city}-{state}".lower(),
+            "city_state": f"{city}-{state_name}".lower(),
             "overall_score": metrics["overall_score"],
             "weighted_overall_score": metrics["weighted_overall_score"],
             "population_total": metrics["population_total"],
+            "old_score": old_score,
         }
     )
 
-# Write merged CSV
+# -----------------------------
+# Write final CSV
+# -----------------------------
 with open(OUTPUT_CSV, "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(
@@ -56,8 +96,10 @@ with open(OUTPUT_CSV, "w", newline="") as f:
             "overall_score",
             "weighted_overall_score",
             "population_total",
+            "old_score",
         ]
     )
+
     for r in sorted(rows, key=lambda x: x["city_state"]):
         writer.writerow(
             [
@@ -65,6 +107,7 @@ with open(OUTPUT_CSV, "w", newline="") as f:
                 r["overall_score"],
                 r["weighted_overall_score"],
                 r["population_total"],
+                r["old_score"],
             ]
         )
 
