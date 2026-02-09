@@ -146,6 +146,7 @@ def ensure_gdf_class_boundary(gdf: gpd.GeoDataFrame) -> None:
 
 def retrieve_city_boundaries(
     output: pathlib.Path,
+    buffer: int,
     country: str,
     city: str,
     state: typing.Optional[str] = None,
@@ -166,6 +167,10 @@ def retrieve_city_boundaries(
             state=fips_code[:2], cache=cache_enabled, year=common.DEFAULT_PYGRIS_YEAR
         )
         city_gdf = places[places["PLACEFP"] == fips_code[2:]]
+        buffered_city_gdf = city_gdf.copy()
+        buffered_city_gdf["geometry"] = (
+            buffered_city_gdf.to_crs(32613).buffer(buffer).to_crs(4326)
+        )
     else:
         settings.use_cache = os.getenv("BNA_OSMNX_CACHE", "1") == "1"
         # Prepare the query.
@@ -178,15 +183,22 @@ def retrieve_city_boundaries(
             city_gdf = geocoder.geocode_to_gdf(q)
             ensure_gdf_class_boundary(city_gdf)
 
+        buffered_city_gdf = city_gdf.copy()
+        buffered_city_gdf["geometry"] = (
+            buffered_city_gdf.to_crs(32613).buffer(buffer).to_crs(4326)
+        )
         # Remove the display_name series to ensure there are no international
         # characters in the dataframe. The import will fail if the analyzer finds
         # non US characters.
         # https://github.com/PeopleForBikes/brokenspoke-analyzer/issues/24
         city_gdf.drop("display_name", axis=1)
+        buffered_city_gdf.drop("display_name", axis=1)
 
     # Export the boundaries.
     city_gdf.to_file(output / f"{slug}.shp", encoding="utf-8")
     city_gdf.to_file(output / f"{slug}.geojson")
+    buffered_city_gdf.to_file(output / f"buffered_{slug}.geojson")
+    buffered_city_gdf.to_file(output / f"buffered_{slug}.shp", encoding="utf-8")
 
     return slug
 

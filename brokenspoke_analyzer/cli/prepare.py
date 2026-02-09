@@ -47,6 +47,7 @@ def prepare_cmd(
     mirror: common.Mirror = None,
     no_cache: common.NoCache = False,
     retries: common.Retries = common.DEFAULT_RETRIES,
+    buffer: common.Buffer = common.DEFAULT_WAY_BUFFER,
 ) -> None:
     """Prepare all the files required for an analysis."""
     # Make MyPy happy.
@@ -60,6 +61,13 @@ def prepare_cmd(
         raise ValueError("`block_population` must be set")
     if not retries:
         raise ValueError("`retries` must be set")
+    if not lodes_year:
+        raise ValueError("`lodes_year` must be set")
+    # Ensure lodes_year match the census decade.
+    if 2020 > lodes_year > 2029:
+        raise ValueError("`lodes_year` value must be set between 2020 and 2029")
+    if not buffer:
+        raise ValueError("`buffer` must be set")
 
     # Handles us/usa as the same country.
     country = utils.normalize_country_name(country)
@@ -88,6 +96,7 @@ def prepare_cmd(
             no_cache=bool(no_cache),
             region=region or None,
             retries=retries,
+            buffer=buffer,
         )
     )
 
@@ -107,6 +116,7 @@ async def prepare_(
     lodes_year: typing.Optional[int],
     mirror: typing.Optional[str],
     region: typing.Optional[str],
+    buffer: int,
 ) -> None:
     """Prepare and kicks off the analysis."""
     # Compute the city slug.
@@ -132,7 +142,7 @@ async def prepare_(
         f"[green]Querying OSM to retrieve {city} boundaries...",
     )
     slug = retryer(
-        analysis.retrieve_city_boundaries, data_dir, country, city, region, fips_code
+        analysis.retrieve_city_boundaries, data_dir, buffer, country, city, region, fips_code
     )
     boundary_file = data_dir / f"{slug}.shp"
 
@@ -215,7 +225,7 @@ async def prepare_(
 
         # Reduce the osm file with osmium.
         console.log(f"[green]Reducing the OSM file for {city} with osmium...")
-        polygon_file = data_dir / f"{slug}.geojson"
+        polygon_file = data_dir / f"buffered_{slug}.geojson"
         region_file_path = data_dir / region_file_name
         pfb_osm_file = pathlib.Path(f"{slug}.osm")
         analysis.prepare_city_file(

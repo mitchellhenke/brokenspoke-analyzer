@@ -586,7 +586,7 @@ def all(
     state_default_speed: int | None,
     city_default_speed: int | None,
     import_jobs: bool,
-    buffer: common.Buffer = common.DEFAULT_BUFFER,
+    buffer: common.Buffer = common.DEFAULT_WAY_BUFFER,
     max_trip_distance: common.MaxTripDistance = common.DEFAULT_MAX_TRIP_DISTANCE,
 ) -> None:
     """Compute all features."""
@@ -608,7 +608,7 @@ def parts(
     database_url: common.DatabaseURL,
     sql_script_dir: pathlib.Path,
     output_srid: int,
-    buffer: common.Buffer = common.DEFAULT_BUFFER,
+    buffer: common.Buffer = common.DEFAULT_WAY_BUFFER,
     city_default_speed: int | None,
     compute_parts: common.ComputeParts = common.DEFAULT_COMPUTE_PARTS,
     import_jobs: bool,
