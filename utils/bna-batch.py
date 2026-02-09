@@ -93,13 +93,13 @@ def main(
 ):
     """Process a batch of cities."""
     # Disable logging.
-    root._verbose_callback(0)
+    # root._verbose_callback(0)
 
     # Enable experimental features.
     os.environ["BNA_EXPERIMENTAL"] = "1"
 
     # Enable cache.
-    os.environ["BNA_CACHING_STRATEGY"] = "USER_CACHE"
+    # os.environ["BNA_CACHING_STRATEGY"] = "USER_CACHE"
 
     # Simulate a caching mechanism for OSM data.
     osm_cache = OSM_CACHE_DIR
@@ -126,39 +126,11 @@ def main(
             region = row.get("region") if row.get("region") else country
             fips_code = row["fips_code"]
 
-            # Download the OSM data into the cache if necessary.
-            console.log(
-                f"[green]Caching the OSM region file for {region}...",
-            )
-            with console.status("Downloading..."):
-                try:
-                    cached_region_file = retryer(
-                        analysis.retrieve_region_file, region, osm_cache
-                    )
-                    cached_region_file_md5 = cached_region_file.with_suffix(
-                        OSM_CACHE_FILE_SUFFIX
-                    )
-                except Exception as e:
-                    print(e)
-                    return
-
-            # Prepare the data directory ahead of the analysis.
-            _, _, slug = analysis.osmnx_query(country, city, region)
-            data_dir = DATA_DIR / slug
-            data_dir.mkdir(parents=True, exist_ok=True)
-
-            # Copy the OSM data into the data directory.
-            shutil.copy(cached_region_file, data_dir)
-            shutil.copy(cached_region_file_md5, data_dir)
-
-            # Run the analysis.
-            run_with.compose(
-                city=city,
-                country=country,
-                fips_code=fips_code,
-                lodes_year=lodes_year,
-                region=region,
-                with_parts=parts,
+            run_with_docker(
+                country: country,
+                city: city,
+                region: region,
+                fips_code: fips_code,
             )
 
 
@@ -194,7 +166,7 @@ def run_with_docker(
             "DATABASE_URL",
         ]
         docker_image = [
-            "ghcr.io/peopleforbikes/brokenspoke-analyzer:2.6.3",
+            "b",
             "-vv",
         ]
         subprocess.run(

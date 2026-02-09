@@ -85,6 +85,7 @@ docker run \
   -vv configure custom 4 4096 postgres
 ```
 
+
 **Remark: refer to the last section of this guide to find the optimal values for
 your system**
 
@@ -95,7 +96,7 @@ docker run \
   --rm \
   --network brokenspoke-analyzer_default \
   -e DATABASE_URL \
-  ghcr.io/peopleforbikes/brokenspoke-analyzer:2.6.5 \
+  b \
   -vv run --no-cache "united states" "santa rosa" "new mexico" 3570670
 ```
 
@@ -108,8 +109,8 @@ docker run \
   -u $(id -u):$(id -g) \
   -v ./results:/usr/src/app/results \
   -e DATABASE_URL \
-  ghcr.io/peopleforbikes/brokenspoke-analyzer:2.6.5 \
-  -vv export local "united states" "santa rosa" "new mexico"
+  b \
+  -vv export local "united states" 'boulder junction' "wisconsin"
 ```
 
 Clean up (required before attempting to run another analysis):
