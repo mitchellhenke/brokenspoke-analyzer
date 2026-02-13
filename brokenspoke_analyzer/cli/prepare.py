@@ -207,10 +207,6 @@ async def prepare_(
             with console.status("Downloading..."):
                 await bna_store.download_2020_census_blocks(session, state_fips)
 
-            console.log("[green]Fetching US census blocks (2020)...")
-            with console.status("Downloading..."):
-                await bna_store.download_2020_census_blocks(session, state_fips)
-
             console.log(
                 f"[green]Fetching the OSM region file for {osm_region}...",
             )
