@@ -7,6 +7,9 @@ HISTORICAL_CSV = "historical_scores.csv"
 
 STATE_ABBREV = {
     "wisconsin": "WI",
+    "minnesota": "MN",
+    "illinois": "IL",
+    "michigan": "MI",
     # add more states later if needed
 }
 
