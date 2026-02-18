@@ -12,7 +12,7 @@ CREATE TABLE received.neighborhood_ways_net_vert (
     vert_id SERIAL PRIMARY KEY,
     road_id INTEGER,
     vert_cost INTEGER,
-    geom GEOMETRY (POINT, :nb_output_srid)
+    geom GEOMETRY (POINT, 32616)
 );
 
 CREATE TABLE received.neighborhood_ways_net_link (
@@ -35,7 +35,7 @@ CREATE TABLE received.neighborhood_ways_net_link (
     target_stress INTEGER,
     link_cost INTEGER,
     link_stress INTEGER,
-    geom GEOMETRY (LINESTRING, :nb_output_srid)
+    geom GEOMETRY (LINESTRING, 32616)
 );
 
 -- create vertices
@@ -60,27 +60,37 @@ ANALYZE received.neighborhood_ways_net_vert;
 -- add links --
 ---------------
 -- two-way to two-way
+-- Split into 4 explicit paths to avoid Cartesian product
 INSERT INTO received.neighborhood_ways_net_link (
     int_id, source_vert, target_vert, geom
 )
-SELECT
-    ints.int_id,
-    vert1.vert_id,
-    vert2.vert_id, -- noqa: AL08
-    ST_Makeline(vert1.geom, vert2.geom) -- noqa: AL03
-FROM received.neighborhood_ways_intersections AS ints,
-    received.neighborhood_ways_net_vert AS vert1,
-    received.neighborhood_ways AS roads1,
-    received.neighborhood_ways_net_vert AS vert2,
-    received.neighborhood_ways AS roads2
-WHERE
-    vert1.road_id = roads1.road_id
-    AND vert2.road_id = roads2.road_id
-    AND ints.int_id IN (roads1.intersection_from, roads1.intersection_to)
-    AND ints.int_id IN (roads2.intersection_from, roads2.intersection_to)
-    AND roads1.one_way IS NULL
-    AND roads2.one_way IS NULL
-    AND roads1.road_id != roads2.road_id;
+SELECT ints.int_id, vert1.vert_id, vert2.vert_id, ST_Makeline(vert1.geom, vert2.geom) -- noqa: AL03
+FROM received.neighborhood_ways_intersections AS ints
+JOIN received.neighborhood_ways AS roads1 ON ints.int_id = roads1.intersection_from AND roads1.one_way IS NULL
+JOIN received.neighborhood_ways_net_vert AS vert1 ON vert1.road_id = roads1.road_id
+JOIN received.neighborhood_ways AS roads2 ON ints.int_id = roads2.intersection_from AND roads2.one_way IS NULL AND roads2.road_id != roads1.road_id
+JOIN received.neighborhood_ways_net_vert AS vert2 ON vert2.road_id = roads2.road_id
+UNION
+SELECT ints.int_id, vert1.vert_id, vert2.vert_id, ST_Makeline(vert1.geom, vert2.geom) -- noqa: AL03
+FROM received.neighborhood_ways_intersections AS ints
+JOIN received.neighborhood_ways AS roads1 ON ints.int_id = roads1.intersection_from AND roads1.one_way IS NULL
+JOIN received.neighborhood_ways_net_vert AS vert1 ON vert1.road_id = roads1.road_id
+JOIN received.neighborhood_ways AS roads2 ON ints.int_id = roads2.intersection_to AND roads2.one_way IS NULL AND roads2.road_id != roads1.road_id
+JOIN received.neighborhood_ways_net_vert AS vert2 ON vert2.road_id = roads2.road_id
+UNION
+SELECT ints.int_id, vert1.vert_id, vert2.vert_id, ST_Makeline(vert1.geom, vert2.geom) -- noqa: AL03
+FROM received.neighborhood_ways_intersections AS ints
+JOIN received.neighborhood_ways AS roads1 ON ints.int_id = roads1.intersection_to AND roads1.one_way IS NULL
+JOIN received.neighborhood_ways_net_vert AS vert1 ON vert1.road_id = roads1.road_id
+JOIN received.neighborhood_ways AS roads2 ON ints.int_id = roads2.intersection_from AND roads2.one_way IS NULL AND roads2.road_id != roads1.road_id
+JOIN received.neighborhood_ways_net_vert AS vert2 ON vert2.road_id = roads2.road_id
+UNION
+SELECT ints.int_id, vert1.vert_id, vert2.vert_id, ST_Makeline(vert1.geom, vert2.geom) -- noqa: AL03
+FROM received.neighborhood_ways_intersections AS ints
+JOIN received.neighborhood_ways AS roads1 ON ints.int_id = roads1.intersection_to AND roads1.one_way IS NULL
+JOIN received.neighborhood_ways_net_vert AS vert1 ON vert1.road_id = roads1.road_id
+JOIN received.neighborhood_ways AS roads2 ON ints.int_id = roads2.intersection_to AND roads2.one_way IS NULL AND roads2.road_id != roads1.road_id
+JOIN received.neighborhood_ways_net_vert AS vert2 ON vert2.road_id = roads2.road_id;
 
 -- two-way to from-to
 INSERT INTO received.neighborhood_ways_net_link (
