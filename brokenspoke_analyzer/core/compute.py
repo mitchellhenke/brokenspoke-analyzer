@@ -329,6 +329,15 @@ def connectivity(
     bind_params = {"nb_output_srid": output_srid}
     execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
 
+    sql_script = sql_connectivity_script_dir / "build_network_links.sql"
+    execute_sqlfile_with_substitutions(engine, sql_script, {})
+
+    sql_script = sql_connectivity_script_dir / "build_network_link_info.sql"
+    execute_sqlfile_with_substitutions(engine, sql_script, {})
+
+    sql_script = sql_connectivity_script_dir / "build_network_turns.sql"
+    execute_sqlfile_with_substitutions(engine, sql_script, {})
+
     sql_script = sql_connectivity_script_dir / "census_blocks.sql"
     bind_params = {
         "block_road_buffer": block_road.buffer,
