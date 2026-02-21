@@ -414,6 +414,7 @@ def connectivity(
             _census_block_id = future_to_census_block_id[future]
             data = future.result()
 
+    logger.info("CONNECTIVITY: Connected census blocks cleanup")
     sql_script = sql_connectivity_script_dir / "connected_census_blocks.sql"
     dbcore.execute_sql_file(engine, sql_script)
 
