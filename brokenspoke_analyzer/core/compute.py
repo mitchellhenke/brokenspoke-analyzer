@@ -14,6 +14,7 @@ from itertools import chain
 
 from loguru import logger
 from sqlalchemy.engine import Engine
+from sqlalchemy import text
 
 from brokenspoke_analyzer.cli import common
 from brokenspoke_analyzer.core import constant
@@ -28,17 +29,28 @@ def execute_sqlfile_with_substitutions(
     bind_params: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     log_level: str = "DEBUG",
 ) -> None:
-    """Execute SQL statements with substitutions."""
+    """Execute SQL statements with substitutions, splitting multiple statements and executing individually."""
     logger.log(log_level, f"Execute {sqlfile}")
     logger.log(log_level, f"{bind_params=}")
-    statements = sqlfile.read_text()
+    sql_content = sqlfile.read_text()
     if bind_params:
         binding_names = sorted(bind_params.keys(), key=len, reverse=True)
         for binding_name in binding_names:
             param = bind_params[binding_name]
             substitute = param if param is not None else "NULL"
-            statements = statements.replace(f":{binding_name}", f"{substitute}")
-    dbcore.execute_query(engine, statements)
+            sql_content = sql_content.replace(f":{binding_name}", f"{substitute}")
+
+    # Split on semicolons and filter out empty statements
+    statements = [
+        stmt.strip()
+        for stmt in sql_content.split(";")
+        if stmt.strip()
+    ]
+
+    # Execute each statement individually
+    for statement in statements:
+        with engine.execution_options(isolation_level="AUTOCOMMIT").connect() as conn:
+            conn.execute(text(statement))
 
 
 def features(

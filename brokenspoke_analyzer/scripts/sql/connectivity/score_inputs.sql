@@ -35,7 +35,7 @@ CREATE TABLE generated.neighborhood_score_inputs (
 -- for weighting purposes
 -------------------------------------
 DROP TABLE IF EXISTS tmp_pop;
-CREATE TEMP TABLE tmp_pop (
+CREATE TABLE tmp_pop (
     overall INTEGER,
     k12 INTEGER,
     tech INTEGER,
@@ -3881,3 +3881,5 @@ SELECT
             (if only one transit station exists this is the score for that one
             location)', '\n\s+', ' ', 'g');
 -- noqa: enable=all
+
+DROP TABLE tmp_pop;

@@ -31,8 +31,18 @@ def execute_query(engine: Engine, query: str) -> None:
 
 
 def execute_sql_file(engine: Engine, sqlfile: pathlib.Path) -> None:
-    """Execute a SQL file."""
-    execute_query(engine, sqlfile.read_text())
+    """Execute a SQL file, splitting multiple statements and executing individually."""
+    sql_content = sqlfile.read_text()
+    # Split on semicolons and filter out empty statements
+    statements = [
+        stmt.strip()
+        for stmt in sql_content.split(";")
+        if stmt.strip()
+    ]
+    # Execute each statement individually
+    for statement in statements:
+        with engine.execution_options(isolation_level="AUTOCOMMIT").connect() as conn:
+            conn.execute(text(statement))
 
 
 def import_csv_file_with_header(
