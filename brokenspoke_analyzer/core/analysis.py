@@ -161,7 +161,7 @@ def retrieve_city_boundaries(
     structured_query, q, slug = osmnx_query(country, city, state)
     # Download boundaries from Census Bureau for US places with FIPS Code
     # with OSM as a fallback for other places.
-    if fips_code is not None and fips_code != common.DEFAULT_CITY_FIPS_CODE:
+    if fips_code is not None and fips_code not in ["3651000", common.DEFAULT_CITY_FIPS_CODE]:
         cache_enabled = os.getenv("BNA_PYGRIS_CACHE", "1") == "1"
         places = pygris.places(
             state=fips_code[:2], cache=cache_enabled, year=common.DEFAULT_PYGRIS_YEAR
