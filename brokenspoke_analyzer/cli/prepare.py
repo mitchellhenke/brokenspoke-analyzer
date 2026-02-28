@@ -145,6 +145,35 @@ async def prepare_(
     state_abbrev, state_fips, _ = analysis.derive_state_info(region)
     osm_region = region if region else country
 
+    region_file_name = None
+
+    # Prepare the caching strategy.
+    caching_strategy = datastore.CacheType.USER_CACHE
+    if no_cache:
+        caching_strategy = datastore.CacheType.NONE
+    elif cache_dir:
+        caching_strategy = datastore.CacheType.CUSTOM
+
+    bna_store = datastore.BNADataStore(
+        data_dir, caching_strategy, mirror=mirror, custom_dir=cache_dir
+    )
+
+    async with aiohttp.ClientSession() as session:
+        console.log(
+            f"[green]Fetching the OSM region file for {osm_region}...",
+        )
+        with console.status("Downloading..."):
+            region_file_name = await bna_store.download_osm_data(session, osm_region)
+
+    # Reduce the osm file with osmium.
+    console.log(f"[green]Reducing the OSM file for {city} with osmium...")
+    polygon_file = data_dir / f"buffered_{slug}.geojson"
+    region_file_path = data_dir / region_file_name
+    pfb_osm_file = pathlib.Path(f"{slug}.osm")
+    analysis.prepare_city_file(
+        data_dir, region_file_path, polygon_file, pfb_osm_file
+    )
+
     # Perform some specific operations for non-US cities.
     if state_fips == runner.NON_US_STATE_FIPS:
         # Create synthetic population.
@@ -165,17 +194,6 @@ async def prepare_(
         )
         analysis.change_speed_limit(data_dir, city, state_abbrev, city_speed_limit)
     else:
-        # Prepare the caching strategy.
-        caching_strategy = datastore.CacheType.USER_CACHE
-        if no_cache:
-            caching_strategy = datastore.CacheType.NONE
-        elif cache_dir:
-            caching_strategy = datastore.CacheType.CUSTOM
-
-        bna_store = datastore.BNADataStore(
-            data_dir, caching_strategy, mirror=mirror, custom_dir=cache_dir
-        )
-
         # Fetch the data.
         async with aiohttp.ClientSession() as session:
             console.log("[green]Fetching US state speed limits...")
@@ -206,19 +224,3 @@ async def prepare_(
             console.log("[green]Fetching US census blocks (2020)...")
             with console.status("Downloading..."):
                 await bna_store.download_2020_census_blocks(session, state_fips)
-
-            console.log(
-                f"[green]Fetching the OSM region file for {osm_region}...",
-            )
-            region_file_name = None
-            with console.status("Downloading..."):
-                region_file_name = await bna_store.download_osm_data(session, osm_region)
-
-        # Reduce the osm file with osmium.
-        console.log(f"[green]Reducing the OSM file for {city} with osmium...")
-        polygon_file = data_dir / f"buffered_{slug}.geojson"
-        region_file_path = data_dir / region_file_name
-        pfb_osm_file = pathlib.Path(f"{slug}.osm")
-        analysis.prepare_city_file(
-            data_dir, region_file_path, polygon_file, pfb_osm_file
-        )
