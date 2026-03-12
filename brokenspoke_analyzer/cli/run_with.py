@@ -207,7 +207,7 @@ def run_(
     logger.debug(f"{state_default_speed=}")
     logger.debug(f"{city_default_speed=}")
     country = utils.normalize_country_name(country)
-    import_jobs = utils.is_usa(country)
+    import_jobs = utils.is_usa(country) and region != 'puerto rico'
 
     with console.status("[green]Computing..."):
         compute.parts(
