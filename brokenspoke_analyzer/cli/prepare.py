@@ -143,7 +143,11 @@ async def prepare_(
 
     # Retrieve the state info if needed.
     state_abbrev, state_fips, _ = analysis.derive_state_info(region)
-    osm_region = region if region else country
+    osm_region = None
+    if utils.is_usa(country) or country == 'canada':
+        osm_region = region
+    else:
+        osm_region = country
 
     region_file_name = None
 
