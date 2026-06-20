@@ -19,7 +19,8 @@ OR (
     low_stress_cost IS NOT NULL
     AND CASE
         WHEN COALESCE(high_stress_cost, 0) = 0 THEN TRUE
-        ELSE low_stress_cost::FLOAT / high_stress_cost <= 1.25
+        ELSE ((low_stress_cost - high_stress_cost <= 800) OR
+          (low_stress_cost::FLOAT / high_stress_cost <= 1.25))
     END
 );
 
