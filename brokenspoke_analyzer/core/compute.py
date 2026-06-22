@@ -329,14 +329,25 @@ def connectivity(  # noqa: PLR0915
     }
     execute_sqlfile_with_substitutions(engine, sql_script, bind_params)
 
-    # Fetch all road_ids and then calculate stress for them individually but in parallel
-    result = dbcore.execute_query_with_result(
-        engine, "select road_id FROM neighborhood_ways"
+    # Block verts: every block's road midpoint vertices, used to seed the
+    # per-block driving-distance search from a single 0-cost super-source.
+    logger.info("CONNECTIVITY: Block verts")
+    dbcore.execute_sql_file(
+        engine, sql_connectivity_script_dir / "block_verts.sql"
     )
-    road_ids = list(chain.from_iterable(result))
-    road_ids.sort()
 
-    # Reachable roads stress.
+    # Reachability is computed once per block (one Dijkstra seeded from all of the
+    # block's road verts), so the unit of work is geoid20. Only blocks intersecting
+    # the boundary are used as sources (matching connected_census_blocks_calc).
+    result = dbcore.execute_query_with_result(
+        engine,
+        "SELECT cb.geoid20 FROM neighborhood_census_blocks AS cb, "
+        "neighborhood_boundary AS b WHERE ST_Intersects(cb.geom, b.geom)",
+    )
+    census_block_ids = list(chain.from_iterable(result))
+    census_block_ids.sort()
+
+    # Reachable roads stress (per block).
     for stress_level in ["high", "low"]:
         logger.info(f"CONNECTIVITY: Reachable roads {stress_level} stress")
 
@@ -357,18 +368,21 @@ def connectivity(  # noqa: PLR0915
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=os.process_cpu_count()
         ) as executor:
-            future_to_road_id = {
+            future_to_block_id = {
                 executor.submit(
                     execute_sqlfile_with_substitutions,
                     engine,
                     sql_script,
-                    {"road_id": i, "nb_max_trip_distance": max_trip_distance},
+                    {
+                        "block_id": f"'{i}'",
+                        "nb_max_trip_distance": max_trip_distance,
+                    },
                     "TRACE",
                 ): i
-                for i in road_ids
+                for i in census_block_ids
             }
-            for future in concurrent.futures.as_completed(future_to_road_id):
-                _road_id = future_to_road_id[future]
+            for future in concurrent.futures.as_completed(future_to_block_id):
+                _block_id = future_to_block_id[future]
                 _data = future.result()
 
         # Cleanup.
