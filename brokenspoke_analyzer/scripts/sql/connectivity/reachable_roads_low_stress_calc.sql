@@ -29,7 +29,7 @@ FROM PGR_DRIVINGDISTANCE(
                link_cost AS cost
         FROM   neighborhood_ways_net_link
         WHERE  link_stress = 1
-        AND    ST_DWithin(geom, (SELECT geom FROM neighborhood_census_blocks WHERE geoid20 = ''' || :block_id || '''), ' || :nb_max_trip_distance + 100 || ')
+        AND    ST_DWithin(geom, (SELECT ST_Collect(v.geom) FROM generated.neighborhood_block_verts AS bv INNER JOIN neighborhood_ways_net_vert AS v ON v.vert_id = bv.vert_id WHERE bv.geoid20 = ''' || :block_id || '''), ' || :nb_max_trip_distance + 100 || ')
         UNION ALL
         SELECT -row_number() OVER () AS id, -1 AS source, vert_id AS target, 0 AS cost
         FROM   generated.neighborhood_block_verts
