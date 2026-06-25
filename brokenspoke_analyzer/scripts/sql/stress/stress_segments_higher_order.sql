@@ -30,7 +30,8 @@ SET
                 WHEN COALESCE(speed_limit, :default_speed) > 25 THEN 3
                 WHEN COALESCE(speed_limit, :default_speed) <= 25
                     THEN CASE
-                        WHEN COALESCE(ft_lanes, :default_lanes) > 1 THEN 3
+                        WHEN COALESCE(ft_lanes, :default_lanes) = 1 THEN 1
+                        WHEN COALESCE(ft_lanes, :default_lanes) = 2 THEN 1
                         ELSE 1
                     END
                 ELSE 3
@@ -62,6 +63,10 @@ SET
                 WHEN COALESCE(speed_limit, :default_speed) <= 15
                     THEN CASE
                         WHEN COALESCE(ft_lanes, :default_lanes) = 1 THEN 1
+                        WHEN COALESCE(ft_lanes, :default_lanes) = 2 AND array_length(ft_turn_lanes, 1) = 2
+                          AND ft_turn_lanes[1] IN ('left', 'left;through', 'through;left', 'through', '')
+                          AND ft_turn_lanes[2] IN ('through', '')
+                          THEN 1
                         ELSE 3
                     END
                 ELSE 3

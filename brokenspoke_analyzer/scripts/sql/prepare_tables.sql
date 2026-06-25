@@ -67,6 +67,8 @@ ALTER TABLE neighborhood_ways ADD COLUMN tf_bike_infra TEXT;
 ALTER TABLE neighborhood_ways ADD COLUMN tf_bike_infra_width FLOAT;
 ALTER TABLE neighborhood_ways ADD COLUMN ft_lanes INT;
 ALTER TABLE neighborhood_ways ADD COLUMN tf_lanes INT;
+ALTER TABLE neighborhood_ways ADD COLUMN ft_turn_lanes TEXT[];
+ALTER TABLE neighborhood_ways ADD COLUMN tf_turn_lanes TEXT[];
 ALTER TABLE neighborhood_ways ADD COLUMN ft_cross_lanes INT;
 ALTER TABLE neighborhood_ways ADD COLUMN tf_cross_lanes INT;
 ALTER TABLE neighborhood_ways ADD COLUMN twltl_cross_lanes INT;

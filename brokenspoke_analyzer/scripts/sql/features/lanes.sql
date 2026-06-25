@@ -64,6 +64,36 @@ SET
             AND (osm.oneway IS NULL OR osm.oneway = 'no')
             THEN ceil(substring(osm.lanes FROM '\d+')::FLOAT / 2)
     END,
+    ft_turn_lanes
+    = CASE
+        WHEN osm."turn:lanes:forward" IS NOT NULL
+            THEN
+                regexp_split_to_array(
+                    osm."turn:lanes:forward",
+                    '\|'
+                )
+        WHEN osm."turn:lanes" IS NOT NULL AND osm.oneway IN ('1', 'yes')
+            THEN
+                regexp_split_to_array(
+                    osm."turn:lanes",
+                    '\|'
+                )
+    END,
+    tf_turn_lanes
+    = CASE
+        WHEN osm."turn:lanes:backward" IS NOT NULL
+            THEN
+                regexp_split_to_array(
+                    osm."turn:lanes:backward",
+                    '\|'
+                )
+        WHEN osm."turn:lanes" IS NOT NULL AND osm.oneway IN ('1', 'yes')
+            THEN
+                regexp_split_to_array(
+                    osm."turn:lanes",
+                    '\|'
+                )
+    END,
     ft_cross_lanes
     = CASE
         WHEN osm."turn:lanes:forward" IS NOT NULL
